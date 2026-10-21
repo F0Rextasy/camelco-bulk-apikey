@@ -105,7 +105,7 @@ The launcher asks for the proxy list (optional — without one the CLI runs dire
 | `POST /api/user/checkin` | **200** — +100,791 … +989,392 units on 63 of 67 accounts |
 | `POST /api/token/` (`default`, fallback inherit) | **200** — 48-char keys returned once |
 | `POST /v1/chat/completions` per key before it is written | **200** — 67/67 keys minted live (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
-| independent re-check via the shipped CLI (`--verify-only`, WARP exit, 2026-10-21) | **13/67 live** — the panel banned the other 54 (`403 auth.user_banned`); the wave is chronological (the newest 13 accounts still answered **200**), and the checkout keeps the split: **`keys.txt` = 13 live keys, `keys-dead.txt` = 54 banned** |
+| independent re-check via the shipped CLI (`--verify-only`, proxy exit, 2026-10-21) | **13/67 live** — the panel banned the other 54 (`403 auth.user_banned`); the wave is chronological (the newest 13 accounts still answered **200**), and the checkout keeps the split: **`keys.txt` = 13 live keys, `keys-dead.txt` = 54 banned** |
 
 ## 🧭 How it works
 

@@ -105,7 +105,7 @@ node src/launcher.js        # interactive: mint / verify / screen / settings
 | `POST /api/user/checkin` | **200** — 67 アカウント中 63 件で +100,791 … +989,392 単位 |
 | `POST /api/token/`（`default`、フォールバック inherit） | **200** — 48 文字のキーが一度だけ返されます |
 | 書き込まれる前の各キーの `POST /v1/chat/completions` | **200** — 67/67 キーがライブで鋳造（`gemini-2.5-flash-lite` 64、`qwen-flash` 1、`deepseek-v4.1-flash` 2） |
-| 同梱の CLI による独立した再チェック（`--verify-only`、WARP 出口、2026-10-21） | **13/67 稼働** — パネルは他の 54 を BAN（`403 auth.user_banned`）。波は時系列順で（最新の 13 アカウントはまだ **200** を返しました）、チェックアウトは分割を保持します: **`keys.txt` = 稼働中の 13 キー、`keys-dead.txt` = BAN された 54 キー** |
+| 同梱の CLI による独立した再チェック（`--verify-only`、代理出口、2026-10-21） | **13/67 稼働** — パネルは他の 54 を BAN（`403 auth.user_banned`）。波は時系列順で（最新の 13 アカウントはまだ **200** を返しました）、チェックアウトは分割を保持します: **`keys.txt` = 稼働中の 13 キー、`keys-dead.txt` = BAN された 54 キー** |
 
 ## 🧭 仕組み
 

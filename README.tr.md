@@ -105,7 +105,7 @@ Başlatıcı proxy listesini (isteğe bağlı — olmadan CLI doğrudan çalış
 | `POST /api/user/checkin` | **200** — 67 hesabın 63'ünde +100.791 … +989.392 birim |
 | `POST /api/token/` (`default`, yedek inherit) | **200** — 48 karakterli anahtarlar bir kez döndürülür |
 | Yazılmadan önce her anahtar için `POST /v1/chat/completions` | **200** — 67/67 anahtar canlı üretildi (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
-| gönderilen CLI ile bağımsız yeniden kontrol (`--verify-only`, WARP çıkışı, 2026-10-21) | **13/67 canlı** — panel diğer 54'ünü yasakladı (`403 auth.user_banned`); dalga kronolojiktir (en yeni 13 hesap hâlâ **200** yanıtladı) ve çıktı ayrımı korur: **`keys.txt` = 13 canlı anahtar, `keys-dead.txt` = 54 yasaklı** |
+| gönderilen CLI ile bağımsız yeniden kontrol (`--verify-only`, proxy çıkışı, 2026-10-21) | **13/67 canlı** — panel diğer 54'ünü yasakladı (`403 auth.user_banned`); dalga kronolojiktir (en yeni 13 hesap hâlâ **200** yanıtladı) ve çıktı ayrımı korur: **`keys.txt` = 13 canlı anahtar, `keys-dead.txt` = 54 yasaklı** |
 
 ## 🧭 Nasıl çalışır
 

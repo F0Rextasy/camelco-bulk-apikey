@@ -105,7 +105,7 @@ El lanzador pide la lista de proxies (opcional — sin una, la CLI se ejecuta di
 | `POST /api/user/checkin` | **200** — +100.791 … +989.392 unidades en 63 de 67 cuentas |
 | `POST /api/token/` (`default`, reserva inherit) | **200** — claves de 48 caracteres devueltas una vez |
 | `POST /v1/chat/completions` por clave antes de escribirse | **200** — 67/67 claves acuñadas en vivo (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
-| reverificación independiente vía la CLI incluida (`--verify-only`, salida WARP, 2026-10-21) | **13/67 activas** — el panel baneó las otras 54 (`403 auth.user_banned`); la oleada es cronológica (las 13 cuentas más nuevas aún respondían **200**), y el checkout conserva la división: **`keys.txt` = 13 claves activas, `keys-dead.txt` = 54 baneadas** |
+| reverificación independiente vía la CLI incluida (`--verify-only`, salida proxy, 2026-10-21) | **13/67 activas** — el panel baneó las otras 54 (`403 auth.user_banned`); la oleada es cronológica (las 13 cuentas más nuevas aún respondían **200**), y el checkout conserva la división: **`keys.txt` = 13 claves activas, `keys-dead.txt` = 54 baneadas** |
 
 ## 🧭 Cómo funciona
 

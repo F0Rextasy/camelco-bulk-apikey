@@ -105,7 +105,7 @@ O launcher pede a lista de proxies (opcional — sem uma, a CLI roda direto) e a
 | `POST /api/user/checkin` | **200** — +100.791 … +989.392 unidades em 63 de 67 contas |
 | `POST /api/token/` (`default`, fallback inherit) | **200** — chaves de 48 caracteres retornadas uma vez |
 | `POST /v1/chat/completions` por chave antes de ser gravada | **200** — 67/67 chaves criadas ao vivo (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
-| reverificação independente via a CLI fornecida (`--verify-only`, saída WARP, 2026-10-21) | **13/67 ativas** — o painel baniu as outras 54 (`403 auth.user_banned`); a onda é cronológica (as 13 contas mais novas ainda responderam **200**), e o checkout mantém a divisão: **`keys.txt` = 13 chaves ativas, `keys-dead.txt` = 54 banidas** |
+| reverificação independente via a CLI fornecida (`--verify-only`, saída proxy, 2026-10-21) | **13/67 ativas** — o painel baniu as outras 54 (`403 auth.user_banned`); a onda é cronológica (as 13 contas mais novas ainda responderam **200**), e o checkout mantém a divisão: **`keys.txt` = 13 chaves ativas, `keys-dead.txt` = 54 banidas** |
 
 ## 🧭 Como funciona
 

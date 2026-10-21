@@ -105,7 +105,7 @@ Der Launcher fragt nach der Proxy-Liste (optional — ohne eine läuft die CLI d
 | `POST /api/user/checkin` | **200** — +100.791 … +989.392 Einheiten bei 63 von 67 Konten |
 | `POST /api/token/` (`default`, Fallback inherit) | **200** — 48-stellige Schlüssel einmalig zurückgegeben |
 | `POST /v1/chat/completions` pro Schlüssel, bevor er geschrieben wird | **200** — 67/67 Schlüssel live erstellt (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
-| unabhängige erneute Prüfung über die mitgelieferte CLI (`--verify-only`, WARP-Exit, 2026-10-21) | **13/67 aktiv** — das Panel hat die anderen 54 gesperrt (`403 auth.user_banned`); die Welle ist chronologisch (die neuesten 13 Konten antworteten noch mit **200**), und der Checkout behält die Aufteilung bei: **`keys.txt` = 13 aktive Schlüssel, `keys-dead.txt` = 54 gesperrte** |
+| unabhängige erneute Prüfung über die mitgelieferte CLI (`--verify-only`, proxy-Exit, 2026-10-21) | **13/67 aktiv** — das Panel hat die anderen 54 gesperrt (`403 auth.user_banned`); die Welle ist chronologisch (die neuesten 13 Konten antworteten noch mit **200**), und der Checkout behält die Aufteilung bei: **`keys.txt` = 13 aktive Schlüssel, `keys-dead.txt` = 54 gesperrte** |
 
 ## 🧭 So funktioniert es
 

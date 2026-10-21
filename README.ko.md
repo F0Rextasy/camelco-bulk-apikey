@@ -105,7 +105,7 @@ node src/launcher.js        # interactive: mint / verify / screen / settings
 | `POST /api/user/checkin` | **200** — 67개 계정 중 63개에 +100,791 … +989,392 단위 |
 | `POST /api/token/` (`default`, 폴백 inherit) | **200** — 48자 키가 한 번 반환됨 |
 | 기록 전 키별 `POST /v1/chat/completions` | **200** — 67/67 키가 실제로 생성됨(`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
-| 제공된 CLI를 통한 독립 재확인 (`--verify-only`, WARP 종료, 2026-10-21) | **13/67 살아있음** — 패널이 나머지 54개를 차단함(`403 auth.user_banned`); 차단은 시간순으로 발생했으며(가장 최근 13개 계정은 여전히 **200** 응답), 체크아웃은 이 분할을 유지함: **`keys.txt` = 살아있는 13개 키, `keys-dead.txt` = 차단된 54개** |
+| 제공된 CLI를 통한 독립 재확인 (`--verify-only`, proxy 종료, 2026-10-21) | **13/67 살아있음** — 패널이 나머지 54개를 차단함(`403 auth.user_banned`); 차단은 시간순으로 발생했으며(가장 최근 13개 계정은 여전히 **200** 응답), 체크아웃은 이 분할을 유지함: **`keys.txt` = 살아있는 13개 키, `keys-dead.txt` = 차단된 54개** |
 
 ## 🧭 작동 방식
 

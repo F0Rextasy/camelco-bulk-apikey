@@ -105,7 +105,7 @@ Le lanceur demande la liste de proxies (facultative — sans elle, le CLI s'exé
 | `POST /api/user/checkin` | **200** — +100 791 … +989 392 unités sur 63 des 67 comptes |
 | `POST /api/token/` (`default`, repli inherit) | **200** — clés de 48 caractères renvoyées une seule fois |
 | `POST /v1/chat/completions` par clé avant son écriture | **200** — 67/67 clés créées en direct (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
-| re-vérification indépendante via le CLI fourni (`--verify-only`, sortie WARP, 2026-10-21) | **13/67 actives** — le panneau a banni les 54 autres (`403 auth.user_banned`) ; la vague est chronologique (les 13 comptes les plus récents répondaient encore **200**), et le dépôt conserve la répartition : **`keys.txt` = 13 clés actives, `keys-dead.txt` = 54 bannies** |
+| re-vérification indépendante via le CLI fourni (`--verify-only`, sortie proxy, 2026-10-21) | **13/67 actives** — le panneau a banni les 54 autres (`403 auth.user_banned`) ; la vague est chronologique (les 13 comptes les plus récents répondaient encore **200**), et le dépôt conserve la répartition : **`keys.txt` = 13 clés actives, `keys-dead.txt` = 54 bannies** |
 
 ## 🧭 Comment ça marche
 
