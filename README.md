@@ -98,6 +98,11 @@ The launcher asks for the proxy list (optional — without one the CLI runs dire
 
 ## ✅ Verified working — every key is tested
 
+> **Quality gates.** Every key here passed a live `chat-200` before it was written to `keys.txt`
+> (dead keys are never shipped). Router combos follow the same rule at the model level: an entry is
+> added **only if the model answers `chat-200` and can call tools** — a model without tool support,
+> a dead key or a dead provider is dropped instead of added. Works with **9Router and OmniRoute**.
+
 | Check | Result |
 | --- | --- |
 | `GET /api/status` | **200** — e-mail verification on, check-in on, captcha off (`turnstile_check:false`); this fork does not publish `register_enabled` — the refusal body is the signal |
@@ -174,7 +179,6 @@ node src/connect-9router.js --base http://localhost:20128 --password 123456
 ```
 
 Defaults: `--prefix camelco`, `--base-url https://camelco.de/v1`, `--model gemini-2.5-flash-lite`. Models are served as `camelco/<model id>`.
-
 
 ## 🔌 Connect to OmniRoute
 
