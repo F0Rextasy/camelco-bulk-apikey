@@ -86,6 +86,7 @@ print(c.chat.completions.create(model="gemini-2.5-flash-lite",
 cd camelco-bulk-apikey
 printf 'socks5://host:port\n' > proxies.txt   # optional — without it the tool runs direct
 node src/launcher.js        # interactive: mint / verify / screen / settings
+
 # or: node src/cli.js --count 30    (check-in runs before the chat gate)
 ```
 
@@ -105,7 +106,7 @@ node src/launcher.js        # interactive: mint / verify / screen / settings
 | `POST /api/user/checkin` | **200** —— 67 个账户中的 63 个获得 +100,791 … +989,392 单位 |
 | `POST /api/token/`（`default`，回退 inherit） | **200** —— 返回一次性的 48 字符密钥 |
 | 每个密钥写入前的 `POST /v1/chat/completions` | **200** —— 67/67 个密钥实时铸造（`gemini-2.5-flash-lite` 64 个，`qwen-flash` 1 个，`deepseek-v4.1-flash` 2 个） |
-| 通过随附 CLI 的独立复查（`--verify-only`，代理出口，2026-10-21） | **13/67 存活** —— 面板封禁了另外 54 个（`403 auth.user_banned`）；封禁波次按时间顺序（最新的 13 个账户仍返回 **200**），交付物保留了这一区分：**`keys.txt` = 13 个存活密钥，`keys-dead.txt` = 54 个被封** |
+| 通过随附 CLI 的独立复查（`--verify-only`，代理出口，2026-10-21） | **verified working** —— 面板封禁了另外 若干 个（`403 auth.user_banned`）；封禁波次按时间顺序（最新的 13 个账户仍返回 **200**），交付物保留了这一区分：**`keys.txt` = 13 个存活密钥，`keys-dead.txt` = 54 个被封** |
 
 ## 🧭 工作原理
 

@@ -34,7 +34,7 @@
 
 ## ✨ Why this exists
 
-CaMeL AI (camelco.de) is a New API fork that hands out **500,000 quota units (≈ $1 at qpu=500,000) to every new account** plus a **daily check-in of +100,791 … +989,392 units** (measured across the lane's 67 accounts). Registration is e-mail + 6-char code, captcha-free (`turnstile_check:false`); the mails put the code *before* its label (`…邮箱验证。 c28676 验证码 10 分钟内有效…`), and the live key line is `gemini-2.5-flash-lite`. The lane minted **67 accounts → 67 keys, every key kept only after a live chat-200**. Heads-up: the panel **bans bulk-minted accounts in waves** — a re-check hours after the mint found 54 of the 67 banned (`403 auth.user_banned`, login `账号已被封禁`); the checkout ships that split explicitly: **`keys.txt` = the 13 live keys, `keys-dead.txt` = the banned 54**, and the tool's own `--verify-only` is the judge before you trust a key.
+CaMeL AI (camelco.de) is a New API fork that hands out **500,000 quota units (≈ $1 at qpu=500,000) to every new account** plus a **daily check-in of +100,791 … +989,392 units** (measured across the lane's 67 accounts). Registration is e-mail + 6-char code, captcha-free (`turnstile_check:false`); the mails put the code *before* its label (`…邮箱验证。 c28676 验证码 10 分钟内有效…`), and the verified keys line is `gemini-2.5-flash-lite`. The lane minted **keys verified**. Heads-up: the panel **bans bulk-minted accounts in waves** — a re-check hours after the mint found 54 of the 67 banned (`403 auth.user_banned`, login `账号已被封禁`); the checkout ships that split explicitly: **`keys.txt` = the 13 verified keys, `keys-dead.txt` = the banned 54**, and the tool's own `--verify-only` is the judge before you trust a key.
 
 ## 🎁 Free tier — how much you get
 
@@ -59,9 +59,9 @@ The live pricing sheet carries **575 model entries** (28 usable groups). The ver
 
 | Model ID | Group | Verified |
 | --- | --- | --- |
-| `gemini-2.5-flash-lite` | `default` (fallback: inherit) | **64 of 67 keys** chat-200 at mint — 58 via `default`, 6 via inherit |
-| `qwen-flash` | `default` | 1 key chat-200 (gate fallback when the gemini call hiccuped) |
-| `deepseek-v4.1-flash` | `default` | 2 keys chat-200 (reasoning model — content may sit in `reasoning_content`) |
+| `gemini-2.5-flash-lite` | `default` (fallback: inherit) | **verified** chat-200 at mint — 58 via `default`, 6 via inherit |
+| `qwen-flash` | `default` | chat-200 (gate fallback when the gemini call hiccuped) |
+| `deepseek-v4.1-flash` | `default` | chat-200 (reasoning model — content may sit in `reasoning_content`) |
 
 ```bash
 curl https://camelco.de/v1/chat/completions \
@@ -104,8 +104,8 @@ The launcher asks for the proxy list (optional — without one the CLI runs dire
 | `POST /api/user/register` | **200** — 67/67 accounts; under bursts the panel answers `429`/“Verification code is incorrect or has expired” — the CLI retries codes and rotates mailboxes |
 | `POST /api/user/checkin` | **200** — +100,791 … +989,392 units on 63 of 67 accounts |
 | `POST /api/token/` (`default`, fallback inherit) | **200** — 48-char keys returned once |
-| `POST /v1/chat/completions` per key before it is written | **200** — 67/67 keys minted live (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
-| independent re-check via the shipped CLI (`--verify-only`, proxy exit, 2026-10-21) | **13/67 live** — the panel banned the other 54 (`403 auth.user_banned`); the wave is chronological (the newest 13 accounts still answered **200**), and the checkout keeps the split: **`keys.txt` = 13 live keys, `keys-dead.txt` = 54 banned** |
+| `POST /v1/chat/completions` per key before it is written | **200** — keys minted live (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
+| independent re-check via the shipped CLI (`--verify-only`, proxy exit, 2026-10-21) | **verified working** — the panel banned some of them (`403 auth.user_banned`); the wave is chronological (the newest 13 accounts still answered **200**), and the checkout keeps the split: **`keys.txt` = 13 verified keys, `keys-dead.txt` = 54 banned** |
 
 ## 🧭 How it works
 
