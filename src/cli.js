@@ -14,8 +14,10 @@
  * once before its key is kept.
  *
  * Flow, per account, every panel request through one pinned exit from your pool:
- *   1. mailbox    Emailnator `POST /api/generate-email` → a fresh @gmail.com
- *                 (registered in the dot-free plain form)
+ *   1. mailbox    Emailnator `POST /api/generate-email` (ids=[2]) → a `+tag`
+ *                 gmail; the panel takes neither `+` nor `.` (alias restriction)
+ *                 and the type-3 dot pool is registered out, so the un-tagged
+ *                 local part of the real-account pool is registered instead
  *   2. status     `GET /api/status` → gates (register on, e-mail verification on)
  *   3. send code  `GET /api/verification?email=…` → panel mails the 6-char code
  *   4. code       poll Emailnator (`/api/message-list` → `/api/message/<id>`);
@@ -371,15 +373,21 @@ async function screen(exits) {
 
 // ------------------------------------------------------------------- mail
 async function newMailbox(exit) {
+  // The panel refuses any address carrying `+` or `.` ("邮箱地址别名限制…包含特殊
+  // 符号") and the dot-stripped forms of the type-3 dot pool are nearly all
+  // already registered ("邮箱地址已被占用", measured 0/6 fresh on 2026-10-23). A
+  // type-2 request hands out `+tag` on one of Emailnator's real gmail accounts,
+  // and the un-tagged local part is the only form this panel takes that is both
+  // fresh and readable (`/api/message-list` accepts that same base string).
   const r = await exitJson(exit, `${EMAILNATOR}/api/generate-email`, {
     method: 'POST',
-    body: { ids: [3] },
+    body: { ids: [2] },
     headers: { origin: EMAILNATOR, referer: `${EMAILNATOR}/` },
   });
   const dotted = r.json && r.json.email;
   if (!dotted || !/@gmail\.com$/i.test(dotted)) throw new Error(`emailnator generate ${r.status}: ${String(r.text).slice(0, 120)}`);
   const [local, domain] = dotted.split('@');
-  return { rail: 'emailnator', dotted, plain: `${local.replace(/\./g, '')}@${domain}` };
+  return { rail: 'emailnator', dotted, plain: `${local.replace(/\+.*$/, '').replace(/\./g, '')}@${domain}` };
 }
 
 /**
@@ -401,12 +409,42 @@ function codeCandidates(text) {
   return [...new Set(out.filter((c) => c && (!/^[a-zA-Z]{4,5}$/.test(c) || /\d/.test(c))))];
 }
 
-const BRAND = /camelco|CaMeL|verify|verification|验证/i;
-const flatten = (html) => String(html || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ');
+// Brand only — the base gmail accounts are real shared inboxes, and their noise
+// ("… is your verification code", "sign-in code") matched the old
+// verify|verification|验证 filter, so a foreign code was returned in seconds and
+// the register answered "Verification code is incorrect or has expired".
+const BRAND = /camelco|CaMeL|camelbot|kr777/i;
+const flatten = (html) => String(html || '').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ');
 
-/** Poll the mailbox for the panel's code; returns up to three candidates. */
-async function waitCodes(exit, box, { timeoutMs = MAIL_WINDOW_MS, pollMs = 5000 } = {}) {
-  const seen = new Set();
+/**
+ * Ids already in the box, taken BEFORE the code is requested: the gmail pool is
+ * shared and recycled, so a pre-send id belongs to another tenant, and `since`
+ * alone cannot fence it (rows without a `timestamp` slip past). A failed
+ * snapshot is not an empty box — it throws.
+ */
+async function inboxIds(exit, address) {
+  let last = null;
+  for (let k = 0; k < 4; k++) {
+    try {
+      const r = await exitJson(exit, `${EMAILNATOR}/api/message-list`, { method: 'POST', body: { email: address, limit: 20 } });
+      const msgs = r.json && r.json.messages;
+      if (Array.isArray(msgs)) return new Set(msgs.map((m) => String((m && m.id) || '')).filter(Boolean));
+      last = new Error(`message-list ${r.status}`);
+    } catch (e) {
+      last = e;
+    }
+    await sleep(4000);
+  }
+  throw new Error(`emailnator snapshot failed: ${String((last && last.message) || last).slice(0, 90)}`);
+}
+/**
+ * Poll the mailbox for the panel's code; returns up to three candidates.
+ * `since` (unix seconds) drops mail that predates this attempt: the shared
+ * base accounts arrive with someone else's old CaMeL mail in the box, and a
+ * stale code is only refused after a round-trip.
+ */
+async function waitCodes(exit, box, { timeoutMs = MAIL_WINDOW_MS, pollMs = 5000, since = 0, seenIds = [] } = {}) {
+  const seen = new Set(seenIds.map(String));
   let foreign = null;
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -418,6 +456,7 @@ async function waitCodes(exit, box, { timeoutMs = MAIL_WINDOW_MS, pollMs = 5000 
     for (const m of msgs) {
       const id = String(m.id);
       if (seen.has(id)) continue;
+      if (since && Number(m.timestamp) && Number(m.timestamp) < since) continue;
       seen.add(id);
       let text = `${m.subject || ''}\n${m.text || ''}`;
       try {
@@ -460,20 +499,33 @@ async function signUp(exit) {
   if (gates.register_enabled === false) throw new Error('register is disabled on the panel right now');
 
   let box = null;
+  let boxIds = null;
   let sent = false;
-  for (let b = 0; b < 5 && !sent; b++) {
+  let lastRefusal = '';
+  const mailSince = Math.floor(Date.now() / 1000) - 45; // 45 s of clock skew
+  // Emailnator's gmail pool is shared and recycled, and a dot-form address is
+  // refused as an alias, so the plain form of an already-registered address
+  // ("邮箱地址已被占用") is the normal answer — rotate the box instead of
+  // waiting, and keep enough boxes to walk past a run of them.
+  for (let b = 0; b < 8 && !sent; b++) {
     box = await newMailbox(exit);
-    for (let a = 0; a < 3 && !sent; a++) {
+    boxIds = await inboxIds(exit, box.plain);
+    for (let a = 0; a < 4 && !sent; a++) {
       const r = await panelFetch(exit, session, `/api/verification?email=${encodeURIComponent(box.plain)}`, { timeoutMs: 30000 });
-      const msg = JSON.stringify((r.json && r.json.message) || r.json || r.text || '').slice(0, 140);
+      const msg = String((r.json && r.json.message) || r.text || '').slice(0, 140);
       if (r.json && r.json.success === true) { sent = true; break; }
-      if (/频繁|frequent|too many|429/i.test(msg)) { await sleep(20000); continue; }
+      lastRefusal = `box ${b + 1} try ${a + 1}: HTTP ${r.status} ${msg}`;
+      // the panel names its own cooldown ("请等待 N 秒后再试") — honor it instead
+      // of a flat 20 s, which either wastes time or retries too early.
+      const wait = /等待\s*(\d+)\s*秒|wait\s*(\d+)\s*(?:seconds?|s\b)/i.exec(msg);
+      if (wait) { await sleep((Number(wait[1] || wait[2]) + 3) * 1000); continue; }
+      if (r.status === 429) { await sleep(20000); continue; }
       break; // EMAIL_EXISTS-style refusals fall through to the next box
     }
   }
-  if (!sent) throw new Error('sendCode never accepted (throttled or address rejected on five boxes)');
+  if (!sent) throw new Error(`sendCode never accepted — last answer ${lastRefusal}`);
 
-  const codes = await waitCodes(exit, box);
+  const codes = await waitCodes(exit, box, { since: mailSince, seenIds: [...(boxIds || [])] });
   if (!codes || !codes.length) throw new Error('no mail code inside the window');
 
   let reg = null;
