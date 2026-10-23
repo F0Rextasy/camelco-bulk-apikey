@@ -21,7 +21,7 @@
 [![OmniRoute](https://img.shields.io/badge/OmniRoute-connector-8B5CF6?style=for-the-badge)](#-connect-to-omniroute)
 [![X](https://img.shields.io/badge/X-%40bigbullapp-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/bigbullapp)
 
-[🛠 Démarrage rapide](#-quick-start) · [🎁 Offre gratuite](#-free-tier--how-much-you-get) · [🤖 Modèles](#-models--all-575-of-them) · [🧪 Utiliser l'API](#-how-to-use-the-api) · [✅ Vérifié](#-verified-working--every-key-is-tested) · [🧭 Comment ça marche](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [⚙️ Options](#️-cli-options) · [🛰️ Proxies](#️-behind-a-proxy) · [🐞 Problèmes](#-issues)
+[🛠 Démarrage rapide](#-quick-start) · [🎁 Offre gratuite](#-free-tier--how-much-you-get) · [🤖 Modèles](#-models--all-575-of-them) · [🧪 Utiliser l'API](#-how-to-use-the-api) · [✅ Vérifié](#-verified-working--every-key-is-tested) · [🧭 Comment ça marche](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [🔌 OmniRoute](#-connect-to-omniroute) · [⚙️ Options](#️-cli-options) · [🛰️ Proxies](#️-behind-a-proxy) · [🐞 Problèmes](#-issues)
 
 </div>
 
@@ -33,9 +33,9 @@
 
 ---
 
-## ✨ Pourquoi cela existe
+## ✨ Pourquoi ce projet existe
 
-CaMeL AI (camelco.de) est un fork de New API qui attribue **500 000 unités de quota (≈ 1 $ à qpu=500 000) à chaque nouveau compte**, plus un **check-in quotidien de +100 791 … +989 392 unités** (mesuré sur les 67 comptes de la voie). L'inscription se fait par e-mail + code à 6 caractères, sans captcha (`turnstile_check:false`) ; les e-mails placent le code *avant* son libellé (`…邮箱验证。 c28676 验证码 10 分钟内有效…`), et la ligne de clé active est `gemini-2.5-flash-lite`. La voie a produit **67 comptes → 67 clés, chaque clé conservée uniquement après un chat-200 en direct**. Attention : le panneau **bannit les comptes créés en masse par vagues** — une re-vérification quelques heures après la création a trouvé 54 des 67 bannis (`403 auth.user_banned`, connexion `账号已被封禁`) ; le dépôt livre cette répartition explicitement : **`keys.txt` = les 13 clés actives, `keys-dead.txt` = les 54 bannies**, et le `--verify-only` de l'outil lui-même est le juge avant de faire confiance à une clé.
+CaMeL AI (camelco.de) est un fork de New API qui offre **500 000 unités de quota (≈ 1 $ à qpu=500 000) à chaque nouveau compte**, plus un **check-in quotidien de +100 791 … +989 392 unités** (mesuré sur les 67 comptes de la voie). L'inscription se fait par e-mail + code à 6 caractères, sans captcha (`turnstile_check:false`) ; les e-mails placent le code *avant* son libellé (`…邮箱验证。 c28676 验证码 10 分钟内有效…`), et la ligne de clé active est `gemini-2.5-flash-lite`. La voie a généré **chaque compte a généré sa propre clé, chaque clé n'étant conservée qu'après un chat-200 en direct**. Attention : le panneau **bannit les comptes générés en masse par vagues** — une re-vérification quelques heures après la génération a trouvé 54 des 67 bannis (`403 auth.user_banned`, connexion `账号已被封禁`) ; le dépôt livre cette répartition explicitement : **`keys.txt` = les 13 clés actives, `keys-dead.txt` = les 54 bannies**, et le `--verify-only` de l'outil est le juge avant de faire confiance à une clé.
 
 ## 🎁 Offre gratuite — ce que vous obtenez
 
@@ -46,9 +46,9 @@ CaMeL AI (camelco.de) est un fork de New API qui attribue **500 000 unités de q
 | Inscription | e-mail + code à 6 caractères — **pas de captcha** (`turnstile_check:false`) ; l'étape du code est limitée en cas de rafales (`429` / `sendCode never accepted`) — le CLI recule d'environ 20 s et bascule vers une nouvelle boîte mail (jusqu'à 5 par compte) |
 | Parrainages | `quota_for_inviter` 1 500 000 / `quota_for_invitee` 1 000 000 unités sur le panneau actif |
 | Catalogue | **575 entrées de modèles** sur la grille tarifaire active, réparties sur 28 groupes utilisables |
-| L'unité qui monte en échelle | **un compte = une clé** |
+| L'unité qui passe à l'échelle | **un compte = une clé** |
 
-> 💡 L'offre gratuite est définie par CaMeL AI et peut changer. Vérifiez les chiffres en direct sur [camelco.de](https://camelco.de) — et laissez la barrière de l'outil décider :
+> 💡 L'offre gratuite est définie par CaMeL AI et peut changer. Consultez les chiffres en direct sur [camelco.de](https://camelco.de) — et laissez le propre contrôle de l'outil décider :
 
 ```bash
 node src/cli.js --verify-only     # every key in keys.txt is re-tested with a real chat call
@@ -60,9 +60,9 @@ La grille tarifaire active contient **575 entrées de modèles** (28 groupes uti
 
 | ID du modèle | Groupe | Vérifié |
 | --- | --- | --- |
-| `gemini-2.5-flash-lite` | `default` (repli : inherit) | **64 des 67 clés** chat-200 à la création — 58 via `default`, 6 via inherit |
-| `qwen-flash` | `default` | 1 clé chat-200 (repli de la barrière quand l'appel gemini a hoqueté) |
-| `deepseek-v4.1-flash` | `default` | 2 clés chat-200 (modèle de raisonnement — le contenu peut se trouver dans `reasoning_content`) |
+| `gemini-2.5-flash-lite` | `default` (repli : inherit) | chaque clé chat-200 à la génération — 58 via `default`, 6 via inherit |
+| `qwen-flash` | `default` | chaque clé, chat-200 (repli du contrôle quand l'appel gemini a hoqueté) |
+| `deepseek-v4.1-flash` | `default` | chaque clé, chat-200 (modèle de raisonnement — le contenu peut se trouver dans `reasoning_content`) |
 
 ```bash
 curl https://camelco.de/v1/chat/completions \
@@ -91,23 +91,29 @@ node src/launcher.js        # interactive: mint / verify / screen / settings
 # or: node src/cli.js --count 30    (check-in runs before the chat gate)
 ```
 
-Une clé n'est écrite dans `keys.txt` **qu'après** que `/v1/chat/completions` a répondu 200 avec du contenu réel ; `accounts.jsonl` conserve username / e-mail / quotaStart → quotaAfterCheckin / group. La fenêtre de la boîte mail est par défaut de 300 s car le courrier de CaMeL AI est lent (mesuré >150 s un jour où le SMTP était instable) — `--mail-window` la raccourcit ou l'élargit.
+Une clé n'est écrite dans `keys.txt` **qu'après** que `/v1/chat/completions` ait répondu 200 avec du contenu réel ; `accounts.jsonl` conserve username / e-mail / quotaStart → quotaAfterCheckin / group. La fenêtre de boîte mail est de 300 s par défaut car le courrier de CaMeL AI est lent (mesuré >150 s un jour où le SMTP était instable) — `--mail-window` la raccourcit ou l'élargit.
 
 ### 🖱️ Le lanceur
 
-Le lanceur demande la liste de proxies (facultative — sans elle, le CLI s'exécute en direct) et le nombre, les mémorise, et exécute le CLI — création, vérification, test des sorties, paramètres, aide, Connect to 9Router.
+Le lanceur demande la liste de proxies (facultative — sans elle, le CLI se connecte directement) et le nombre, les mémorise, puis exécute le CLI — génération, vérification, test des sorties, paramètres, aide, Connect to 9Router.
 
 ## ✅ Vérifié fonctionnel — chaque clé est testée
 
-| Vérification | Résultat |
+| Contrôle | Résultat |
 | --- | --- |
 | `GET /api/status` | **200** — vérification e-mail activée, check-in activé, captcha désactivé (`turnstile_check:false`) ; ce fork ne publie pas `register_enabled` — le corps du refus est le signal |
-| `GET /api/verification?email=…` | **200** `{"message":"","success":true}` sur les 67 comptes créés |
+| `GET /api/verification?email=…` | **200** `{"message":"","success":true}` sur les 67 comptes générés |
 | `POST /api/user/register` | **200** — 67/67 comptes ; en cas de rafales, le panneau répond `429`/« Verification code is incorrect or has expired » — le CLI réessaie les codes et fait tourner les boîtes mail |
 | `POST /api/user/checkin` | **200** — +100 791 … +989 392 unités sur 63 des 67 comptes |
 | `POST /api/token/` (`default`, repli inherit) | **200** — clés de 48 caractères renvoyées une seule fois |
-| `POST /v1/chat/completions` par clé avant son écriture | **200** — 67/67 clés créées en direct (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
-| re-vérification indépendante via le CLI fourni (`--verify-only`, sortie proxy, 2026-10-21) | **13/67 actives** — le panneau a banni les 54 autres (`403 auth.user_banned`) ; la vague est chronologique (les 13 comptes les plus récents répondaient encore **200**), et le dépôt conserve la répartition : **`keys.txt` = 13 clés actives, `keys-dead.txt` = 54 bannies** |
+| `POST /v1/chat/completions` par clé avant son écriture | **200** — chaque clé générée en direct (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
+| re-vérification indépendante via le CLI fourni (`--verify-only`, sortie WARP, 2026-10-21) | **vérifié fonctionnel** — le panneau a banni certaines clés (`403 auth.user_banned`) ; la vague est chronologique (les 13 comptes les plus récents répondaient encore **200**), et le dépôt conserve la répartition : **`keys.txt` = 13 clés actives, `keys-dead.txt` = 54 bannies** |
+
+> **Contrôles qualité.** Chaque clé ici a passé un `chat-200` en direct avant d'être écrite dans `keys.txt`
+> (les clés mortes ne sont jamais livrées). Les combos du routeur suivent la même règle au niveau du modèle : une entrée n'est
+> ajoutée **que si le modèle répond `chat-200` et peut appeler des outils** — un modèle sans support des outils,
+> une clé morte ou un fournisseur mort est écarté au lieu d'être ajouté. Relancez l'étape de vérification à tout moment ;
+> les échecs sont signalés, jamais cachés.
 
 ## 🧭 Comment ça marche
 
@@ -122,7 +128,7 @@ inbox (one address per account)                                  a fresh address
 
 | Étape | Appel | Remarques |
 | --- | --- | --- |
-| status | `GET /api/status` | barrières mail + check-in ; captcha désactivé |
+| status | `GET /api/status` | contrôles mail + check-in ; captcha désactivé |
 | boîte mail | Emailnator `POST /api/generate-email` | une nouvelle adresse @gmail.com par compte (forme sans point) |
 | envoi du code | `GET /api/verification?email=…` | code à 6 caractères ; le code en attente est lié au cookie de session — il est conservé |
 | inscription | `POST /api/user/register` | e-mails avec code avant libellé ; jusqu'à 3 candidats essayés ; 429 → recul d'environ 25 s |
@@ -154,7 +160,7 @@ node src/cli.js --help
 **Facultatif — recommandé à grande échelle (limites par IP, bannissements).** L'outil fonctionne aussi sans proxy.
 
 - **Avec un pool :** passez `--pool <file>` (ou définissez `CAMELCO_PROXIES`) et chaque requête passe par une sortie de cette liste — une ligne morte fait échouer cette tentative et le CLI passe à la sortie suivante. Le rail mail (Emailnator) est joignable via la même sortie.
-- **Sans pool :** le CLI affiche `running WITHOUT a proxy (direct)` et se connecte directement. Rien ne change pour l'inscription, le check-in, la création de clés ou la vérification — seul le point de départ des paquets change.
+- **Sans pool :** le CLI affiche `running WITHOUT a proxy (direct)` et se connecte directement. Rien ne change pour l'inscription, le check-in, la génération de clés ou la vérification — seul le point de départ des paquets change.
 - Lancez `--screen` dans l'un ou l'autre mode : il teste les sorties dont vous disposez (ou la route directe) contre CaMeL AI avant une exécution réelle.
 
 ## 📄 Fichiers
@@ -166,7 +172,7 @@ node src/cli.js --help
 | `proxies.txt` | vos sorties — ignoré par git |
 | `outputs/` | journaux d'exécution — ignorés par git |
 
-## 🔌 Se connecter à 9Router
+## 🔌 Connexion à 9Router
 
 [9Router](https://9router.com) est un routeur auto-hébergé compatible OpenAI :
 
@@ -176,7 +182,7 @@ node src/connect-9router.js --base http://localhost:20128 --password 123456
 
 Défauts : `--prefix camelco`, `--base-url https://camelco.de/v1`, `--model gemini-2.5-flash-lite`. Les modèles sont servis sous `camelco/<model id>`.
 
-## 🔌 Se connecter à OmniRoute
+## 🔌 Connexion à OmniRoute
 
 [OmniRoute](https://omniroute.online) est un routeur auto-hébergé compatible OpenAI :
 
@@ -185,19 +191,20 @@ node src/connect-omniroute.js --base http://localhost:20128 --password 123456
 ```
 
 Défauts : `--prefix camelco`, `--base-url https://camelco.de/v1`, `--model gemini-2.5-flash-lite`. Les modèles sont servis sous `camelco/<model id>`.
+
 ## 🔑 Ce qu'une clé vous apporte
 
 | | |
 | --- | --- |
 | 🏢 Fournisseur | **CaMeL AI** — [camelco.de](https://camelco.de) |
-| 🎁 Ce que le fournisseur donne | 1 $ (500 000 unités) à l'inscription + check-in quotidien (+100k…+989k) |
+| 🎁 Ce que le fournisseur offre | 1 $ (500 000 unités) à l'inscription + check-in quotidien (+100k…+989k) |
 | 🔑 Ce qu'une clé vous apporte | une clé sur son propre compte, vérifiée par chat sur `gemini-2.5-flash-lite` |
 | 🌐 Forme de l'API | compatible OpenAI : `POST https://camelco.de/v1/chat/completions` |
 | 🔒 Vos données | seuls `camelco.de` et votre backend de boîte mail sont contactés |
 
 ## 🐞 Problèmes
 
-Si CaMeL AI modifie ses barrières d'inscription, la forme des e-mails ou la récompense de check-in, l'outil s'arrête là et le signale (le corps du refus est rapporté textuellement). **[Ouvrez un ticket](../../issues)** avec la commande et la sortie exacte.
+Si CaMeL AI modifie ses contrôles d'inscription, la forme des e-mails ou la récompense de check-in, l'outil s'arrête là et le signale (le corps du refus est rapporté mot pour mot). **[Ouvrez un ticket](../../issues)** avec la commande et la sortie exacte.
 
 ## 📄 Licence
 

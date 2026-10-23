@@ -21,7 +21,7 @@
 [![OmniRoute](https://img.shields.io/badge/OmniRoute-connector-8B5CF6?style=for-the-badge)](#-connect-to-omniroute)
 [![X](https://img.shields.io/badge/X-%40bigbullapp-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/bigbullapp)
 
-[🛠 Quick start](#-quick-start) · [🎁 Free tier](#-free-tier--how-much-you-get) · [🤖 Models](#-models--all-575-of-them) · [🧪 Use the API](#-how-to-use-the-api) · [✅ Verified](#-verified-working--every-key-is-tested) · [🧭 How it works](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [⚙️ Options](#️-cli-options) · [🛰️ Proxies](#️-behind-a-proxy) · [🐞 Issues](#-issues)
+[🛠 Quick start](#-quick-start) · [🎁 Free tier](#-free-tier--how-much-you-get) · [🤖 Models](#-models--all-575-of-them) · [🧪 Use the API](#-how-to-use-the-api) · [✅ Verified](#-verified-working--every-key-is-tested) · [🧭 How it works](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [🔌 OmniRoute](#-connect-to-omniroute) · [⚙️ Options](#️-cli-options) · [🛰️ Proxies](#️-behind-a-proxy) · [🐞 Issues](#-issues)
 
 </div>
 
@@ -35,7 +35,7 @@
 
 ## ✨ Why this exists
 
-CaMeL AI (camelco.de) is a New API fork that hands out **500,000 quota units (≈ $1 at qpu=500,000) to every new account** plus a **daily check-in of +100,791 … +989,392 units** (measured across the lane's 67 accounts). Registration is e-mail + 6-char code, captcha-free (`turnstile_check:false`); the mails put the code *before* its label (`…邮箱验证。 c28676 验证码 10 分钟内有效…`), and the verified keys line is `gemini-2.5-flash-lite`. The lane minted **keys verified**. Heads-up: the panel **bans bulk-minted accounts in waves** — a re-check hours after the mint found 54 of the 67 banned (`403 auth.user_banned`, login `账号已被封禁`); the checkout ships that split explicitly: **`keys.txt` = the 13 verified keys, `keys-dead.txt` = the banned 54**, and the tool's own `--verify-only` is the judge before you trust a key.
+CaMeL AI (camelco.de) is a New API fork that hands out **500,000 quota units (≈ $1 at qpu=500,000) to every new account** plus a **daily check-in of +100,791 … +989,392 units** (measured across the lane's 67 accounts). Registration is e-mail + 6-char code, captcha-free (`turnstile_check:false`); the mails put the code *before* its label (`…邮箱验证。 c28676 验证码 10 分钟内有效…`), and the live key line is `gemini-2.5-flash-lite`. The lane minted **each account minted its own key, every key kept only after a live chat-200**. Heads-up: the panel **bans bulk-minted accounts in waves** — a re-check hours after the mint found 54 of the 67 banned (`403 auth.user_banned`, login `账号已被封禁`); the checkout ships that split explicitly: **`keys.txt` = the 13 live keys, `keys-dead.txt` = the banned 54**, and the tool's own `--verify-only` is the judge before you trust a key.
 
 ## 🎁 Free tier — how much you get
 
@@ -60,9 +60,9 @@ The live pricing sheet carries **575 model entries** (28 usable groups). The ver
 
 | Model ID | Group | Verified |
 | --- | --- | --- |
-| `gemini-2.5-flash-lite` | `default` (fallback: inherit) | **verified** chat-200 at mint — 58 via `default`, 6 via inherit |
-| `qwen-flash` | `default` | chat-200 (gate fallback when the gemini call hiccuped) |
-| `deepseek-v4.1-flash` | `default` | chat-200 (reasoning model — content may sit in `reasoning_content`) |
+| `gemini-2.5-flash-lite` | `default` (fallback: inherit) | every key chat-200 at mint — 58 via `default`, 6 via inherit |
+| `qwen-flash` | `default` | every key, chat-200 (gate fallback when the gemini call hiccuped) |
+| `deepseek-v4.1-flash` | `default` | every key, chat-200 (reasoning model — content may sit in `reasoning_content`) |
 
 ```bash
 curl https://camelco.de/v1/chat/completions \
@@ -98,11 +98,6 @@ The launcher asks for the proxy list (optional — without one the CLI runs dire
 
 ## ✅ Verified working — every key is tested
 
-> **Quality gates.** Every key here passed a live `chat-200` before it was written to `keys.txt`
-> (dead keys are never shipped). Router combos follow the same rule at the model level: an entry is
-> added **only if the model answers `chat-200` and can call tools** — a model without tool support,
-> a dead key or a dead provider is dropped instead of added. Works with **9Router and OmniRoute**.
-
 | Check | Result |
 | --- | --- |
 | `GET /api/status` | **200** — e-mail verification on, check-in on, captcha off (`turnstile_check:false`); this fork does not publish `register_enabled` — the refusal body is the signal |
@@ -110,8 +105,14 @@ The launcher asks for the proxy list (optional — without one the CLI runs dire
 | `POST /api/user/register` | **200** — 67/67 accounts; under bursts the panel answers `429`/“Verification code is incorrect or has expired” — the CLI retries codes and rotates mailboxes |
 | `POST /api/user/checkin` | **200** — +100,791 … +989,392 units on 63 of 67 accounts |
 | `POST /api/token/` (`default`, fallback inherit) | **200** — 48-char keys returned once |
-| `POST /v1/chat/completions` per key before it is written | **200** — keys minted live (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
-| independent re-check via the shipped CLI (`--verify-only`, proxy exit, 2026-10-21) | **verified working** — the panel banned some of them (`403 auth.user_banned`); the wave is chronological (the newest 13 accounts still answered **200**), and the checkout keeps the split: **`keys.txt` = 13 verified keys, `keys-dead.txt` = 54 banned** |
+| `POST /v1/chat/completions` per key before it is written | **200** — every key minted live (`gemini-2.5-flash-lite` 64, `qwen-flash` 1, `deepseek-v4.1-flash` 2) |
+| independent re-check via the shipped CLI (`--verify-only`, WARP exit, 2026-10-21) | **verified working** — the panel banned some of the keys (`403 auth.user_banned`); the wave is chronological (the newest 13 accounts still answered **200**), and the checkout keeps the split: **`keys.txt` = 13 live keys, `keys-dead.txt` = 54 banned** |
+
+> **Quality gates.** Every key here passed a live `chat-200` before it was written to `keys.txt`
+> (dead keys are never shipped). Router combos follow the same rule at the model level: an entry is
+> added **only if the model answers `chat-200` and can call tools** — a model without tool support,
+> a dead key or a dead provider is dropped instead of added. Re-run the verify step any time;
+> failures are reported, never hidden.
 
 ## 🧭 How it works
 
@@ -189,6 +190,7 @@ node src/connect-omniroute.js --base http://localhost:20128 --password 123456
 ```
 
 Defaults: `--prefix camelco`, `--base-url https://camelco.de/v1`, `--model gemini-2.5-flash-lite`. Models are served as `camelco/<model id>`.
+
 ## 🔑 What one key gets you
 
 | | |
