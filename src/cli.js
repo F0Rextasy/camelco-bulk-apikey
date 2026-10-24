@@ -60,6 +60,7 @@
  *   --exits N        exits tried per account before giving up           [6]
  *   --timeout MS     per-request timeout                             [60000]
  *   --limit N        cap the keys --verify-only walks (0 = all)           [0]
+ *   --auto           headless-friendly alias (launcher passes it; no prompts ever)   
  *   --verify-only    re-run every key in keys.txt through the chat gate
  *   --screen         only test the proxy list against CaMeL AI
  *   --connect-9router  register this provider (and one key) on a local 9Router
@@ -143,6 +144,7 @@ const ALT_GROUPS = arg('alt-groups', '')
   .map((g) => (g === 'inherit' ? '' : g));
 const CHECKIN = !has('no-checkin');
 const LIMIT = Math.max(0, parseInt(arg('limit', '0'), 10) || 0);
+const AUTO = has('auto');
 const VERIFY_ONLY = has('verify-only');
 const SCREEN = has('screen');
 const CONNECT_9ROUTER = has('connect-9router');
