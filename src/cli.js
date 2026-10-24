@@ -57,7 +57,7 @@
  *   --no-checkin     skip the daily check-in (it is on by default here)
  *   --mail-window S  seconds to wait for the e-mail code                [300]
  *   --pool <file>    proxy list, one exit per line (env CAMELCO_PROXIES) [optional]
- *   --tries N        exits tried per account before giving up           [2]
+ *   --exits N        exits tried per account before giving up           [6]
  *   --timeout MS     per-request timeout                             [60000]
  *   --limit N        cap the keys --verify-only walks (0 = all)           [0]
  *   --verify-only    re-run every key in keys.txt through the chat gate
@@ -131,7 +131,7 @@ with real content.`);
 const COUNT = Math.max(1, parseInt(arg('count', '5'), 10) || 5);
 const CONC = Math.min(4, Math.max(1, parseInt(arg('conc', '1'), 10) || 1));
 const GAP_MS = Math.max(0, parseInt(arg('gap', '1200'), 10) || 0);
-const TRIES = Math.max(1, parseInt(arg('tries', '2'), 10) || 2);
+const EXITS = Math.max(1, parseInt(arg('exits', '6'), 10) || 6);
 const TIMEOUT_MS = Math.max(5000, parseInt(arg('timeout', '60000'), 10) || 60000);
 const MAIL_WINDOW_MS = Math.max(30, parseInt(arg('mail-window', '300'), 10) || 300) * 1000;
 const MODEL = arg('model', process.env.CAMELCO_MODEL || 'gemini-2.5-flash-lite');
@@ -172,9 +172,13 @@ function parseProxy(line) {
 /** A raw socket straight to host:port (no proxy) — the direct-mode twin of connectThrough. */
 function directConnect(host, port, timeoutMs) {
   return new Promise((resolve, reject) => {
-    const sock = net.connect({ host, port });
+    // Node's happy-eyeballs gives each address family 250 ms by default; a
+    // Cloudflare edge that answers in >250 ms (measured 0.3-8 s here) is
+    // rejected as `AggregateError [ETIMEDOUT] sub=ENETUNREACH,ETIMEDOUT`, which
+    // killed direct-mode runs in bursts. Widen the per-attempt window.
+    const sock = net.connect({ host, port, autoSelectFamilyAttemptTimeout: 2500 });
     const t = setTimeout(() => { sock.destroy(); reject(new Error(`connect timeout (${host}:${port})`)); }, timeoutMs);
-    sock.once('error', (e) => { clearTimeout(t); try { sock.destroy(); } catch {} reject(new Error(`connect failed: ${e.message}`)); });
+    sock.once('error', (e) => { clearTimeout(t); try { sock.destroy(); } catch {} reject(new Error(`connect failed: ${e.message || e.code || 'transport error'}`)); });
     sock.once('connect', () => { clearTimeout(t); resolve(sock); });
   });
 }
@@ -353,6 +357,12 @@ function loadExits() {
   }
   return exits;
 }
+/** A dead exit, not a panel verdict — the flow rotates to the next candidate. */
+const isExitError = (e) =>
+  /proxy connect failed|proxy CONNECT refused|proxy timeout|connect timeout|connect failed|ETIMEDOUT|ECONNREFUSED|ECONNRESET|ECONNABORTED|EPIPE|ENETUNREACH|EHOSTUNREACH|EAI_AGAIN|socket hang up|secureConnect|TLS|handshake/i.test(
+    String((e && e.message) || e),
+  );
+
 
 async function screen(exits) {
   let ok = 0;
@@ -657,6 +667,8 @@ async function chatGate(exit, key, model = MODEL) {
 async function mint(exits) {
   log(`camelco · ${COUNT} key(s) · conc ${CONC} · model ${MODEL} · group ${GROUP || 'inherit'} · checkin ${CHECKIN} · exits ${exits.filter(Boolean).length || 'direct'} · keys land in keys.txt`);
   let made = 0;
+  const routes = exits[0] === null ? 1 : EXITS;
+  let transportDead = 0;
   for (let round = 0; round < COUNT; round += CONC) {
     const jobs = [];
     for (let k = 0; k < CONC && round + k < COUNT; k++) {
@@ -664,8 +676,10 @@ async function mint(exits) {
       jobs.push(
         (async () => {
           let lastErr = null;
-          for (let t = 0; t < TRIES; t++) {
-            const exit = exits[(i + t) % exits.length];
+          let lastWasExit = false;
+          for (let a = 0; a < routes; a++) {
+            const exit = exits[(i + a) % exits.length];
+            lastWasExit = false;
             try {
               const rec = await signUp(exit);
               const exitLabel = exit ? `${exit.host}:${exit.port}` : 'direct';
@@ -705,9 +719,15 @@ async function mint(exits) {
               return;
             } catch (e) {
               lastErr = e;
-              log(`account ${i + 1} attempt ${t + 1}: ${String(e.message).slice(0, 130)}`);
+              lastWasExit = isExitError(e);
+              if (lastWasExit) {
+                log(`account ${i + 1}: exit ${a + 1}/${routes} ${exit ? `${exit.host}:${exit.port}` : 'direct'} dead (${String(e.message).slice(0, 70)})${exit ? ' → next exit' : ''}`);
+              } else {
+                log(`account ${i + 1} attempt ${a + 1}: ${String(e.message).slice(0, 130)}`);
+              }
             }
           }
+          if (lastWasExit) transportDead++;
           log(`account ${i + 1} ✘ ${lastErr ? String(lastErr.message).slice(0, 140) : 'failed'}`);
         })()
       );
@@ -716,6 +736,11 @@ async function mint(exits) {
     if (GAP_MS) await sleep(GAP_MS);
   }
   log(`done — ${made}/${COUNT} key(s) written to ${KEYS_FILE}`);
+  if (!made && transportDead === COUNT) {
+    const route = exits[0] === null ? 'direct mode (no proxy list)' : `${exits.length}-exit pool`;
+    console.error(`[fatal] no usable route — ${COUNT} account(s) × ${routes} candidate(s) over ${route}: every attempt died at the transport layer.`);
+    process.exit(1);
+  }
   process.exit(made ? 0 : 1);
 }
 
